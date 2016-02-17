@@ -7,8 +7,8 @@
 #include <time.h>
 using namespace std;
 
-const int xsize = 28 * 28, ysize = 10, hidden_size = 30;
-int train_data_num = 50000, test_data_num = 10000, epochs = 30, mini_batch_size = 10;
+const int xsize = 28 * 28, ysize = 10, hidden_size = 30, numOfLayers = 3;
+int train_data_num = 50000, test_data_num = 10000, vali_data_num = 10000, epochs = 30, mini_batch_size = 10;
 double eta = 1.0;
 bool DEBUG = false;
 
@@ -20,17 +20,20 @@ int main(int argc, char** argv) {
 	dealCMDArgs(argc, argv);
 
 	clock_t start = clock();
-	vector<vector<double> > train_x, test_x, train_y, test_y;
+	vector<vector<double> > train_x, test_x, train_y, test_y, vali_x, vali_y;
 	CReadData("data/train_data.txt", train_x, train_y, train_data_num, "Reading training data:");
+	CReadData("data/validation_data.txt", vali_x, vali_y, vali_data_num, "Reading validation data:");
+	CReadData("data/test_data.txt", test_x, test_y, test_data_num, "Reading testing data:");
 	printf("Read data cost time: %lf\n", double((clock() - start) * 1.0 / CLOCKS_PER_SEC));
 
-	BP bp(xsize, hidden_size, ysize, eta, DEBUG);
+	vector<int> sizes(numOfLayers);
+	sizes[0] = xsize;
+	sizes[1] = hidden_size;
+	sizes[2] = ysize;
+	BP bp(sizes, eta, numOfLayers, DEBUG);
+	bp.RegisterData(test_x, test_y, vali_x, vali_y);
 	bp.Train_stochastic(train_x, train_y, epochs, mini_batch_size);
 	bp.saveModel();
-	printf("Trianing finished...\n");
-
-	CReadData("data/test_data.txt", test_x, test_y, test_data_num, "Reading testing data:");
-	bp.Test(test_x, test_y);
 
 	return 0;
 }
@@ -51,6 +54,9 @@ void dealCMDArgs(int argc, char* argv[]) {
 				break;
 			case 't':
 				ss >> test_data_num;
+				break;
+			case 'v':
+				ss >> vali_data_num;
 				break;
 			case 'l':
 				ss >> epochs;
