@@ -1,6 +1,5 @@
 *.exe
 *.txt
-!*.cpp
-!*.h
-!README.txt
-
+*.o
+data/*
+out

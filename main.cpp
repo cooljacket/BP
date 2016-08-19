@@ -5,6 +5,7 @@
 #include <sstream>
 #include <assert.h>
 #include <time.h>
+#include <stdlib.h>
 using namespace std;
 
 const int xsize = 28 * 28, ysize = 10, hidden_size = 30, numOfLayers = 3;
